@@ -41,18 +41,33 @@
 #include <stdarg.h>
 #include <limits.h>
 
-#ifndef _WIN32
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+
+#ifdef HAVE_POLL
 #include <poll.h>
+#endif
+
+#ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#endif
+
+#ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
+#endif
+
+#ifdef HAVE_NETDB_H
 #include <netdb.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h> // needed for _POSIX_MONOTONIC_CLOCK
-#include "config.h"
-#else
-#include "winstdint.h"
 #endif
 
 #ifdef HAVE_SYS_UTSNAME_H
@@ -265,6 +280,7 @@ static void zookeeper_set_sock_timeout(zhandle_t *, socket_t, int);
 static socket_t zookeeper_connect(zhandle_t *, struct sockaddr_storage *, socket_t);
 
 
+#ifndef THREADED
 /*
  * abort due to the use of a sync api in a singlethreaded environment
  */
@@ -273,6 +289,7 @@ static void abort_singlethreaded(zhandle_t *zh)
     LOG_ERROR(LOGCALLBACK(zh), "Sync completion used without threads");
     abort();
 }
+#endif
 
 static sendsize_t zookeeper_send(socket_t s, const void* buf, size_t len)
 {
